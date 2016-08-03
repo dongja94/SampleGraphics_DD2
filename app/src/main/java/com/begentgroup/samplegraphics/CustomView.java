@@ -36,14 +36,15 @@ public class CustomView extends View {
     }
 
     Paint mPaint;
+
     public CustomView(Context context, AttributeSet attrs) {
         super(context, attrs, R.attr.customViewStyle);
 
         if (attrs != null) {
-            TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.CustomView,R.attr.customViewStyle, 0);
+            TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.CustomView, R.attr.customViewStyle, 0);
             Drawable d = ta.getDrawable(R.styleable.CustomView_image);
             if (d != null && d instanceof BitmapDrawable) {
-                mBitmap = ((BitmapDrawable)d).getBitmap();
+                mBitmap = ((BitmapDrawable) d).getBitmap();
             }
             ta.recycle();
         }
@@ -53,6 +54,12 @@ public class CustomView extends View {
         initPoint();
         initPath();
         initBitmap();
+    }
+
+    public void changeBitmap(Bitmap bitmap) {
+        mBitmap = bitmap;
+        requestLayout();
+        invalidate();
     }
 
     Bitmap mBitmap;
@@ -69,13 +76,14 @@ public class CustomView extends View {
         matrix.reset();
         float dx = mBitmap.getWidth() / 4.0f;
         float height = mBitmap.getHeight();
-        meshVertices = new float[] {
-            0, 0,  dx , 50,  dx * 2 , 0 ,  dx * 3 , 50 , dx * 4 , 0,
-            0, height, dx, height - 50, dx * 2, height, dx * 3, height - 50, dx * 4, height
+        meshVertices = new float[]{
+                0, 0, dx, 50, dx * 2, 0, dx * 3, 50, dx * 4, 0,
+                0, height, dx, height - 50, dx * 2, height, dx * 3, height - 50, dx * 4, height
         };
     }
 
     Path path, textPath, arrowPath;
+
     private void initPath() {
         path = new Path();
         path.moveTo(50, 50);
@@ -85,7 +93,7 @@ public class CustomView extends View {
         path.lineTo(100, 100);
         path.lineTo(0, 100);
 
-        path.addCircle( 300, 300, 100, Path.Direction.CCW);
+        path.addCircle(300, 300, 100, Path.Direction.CCW);
 
         textPath = new Path();
         textPath.addCircle(300, 300, 150, Path.Direction.CW);
@@ -100,8 +108,9 @@ public class CustomView extends View {
 
     float[] points;
     private static final float START = 0, END = 600, INTERVAL = 20;
+
     private void initPoint() {
-        int count = (int)((END - START) / INTERVAL) + 1;
+        int count = (int) ((END - START) / INTERVAL) + 1;
         points = new float[count * 2 * 2];
 
         for (int i = 0; i < count; i++) {
@@ -110,6 +119,40 @@ public class CustomView extends View {
             points[i * 4 + 2] = END - i * INTERVAL;
             points[i * 4 + 3] = START;
         }
+    }
+
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        int width = getPaddingLeft() + getPaddingRight() + mBitmap.getWidth();
+        int height = getPaddingTop() + getPaddingBottom() + mBitmap.getHeight();
+
+//        int mode = MeasureSpec.getMode(widthMeasureSpec);
+//        int size = MeasureSpec.getSize(widthMeasureSpec);
+//        switch (mode) {
+//            case MeasureSpec.AT_MOST:
+//                width = (width < size)?width:size;
+//                break;
+//            case MeasureSpec.EXACTLY:
+//                width = size;
+//                break;
+//            case MeasureSpec.UNSPECIFIED:
+//                width = width;
+//                break;
+//        }
+
+        width = resolveSize(width, widthMeasureSpec);
+        height = resolveSize(height, heightMeasureSpec);
+
+        setMeasuredDimension(width, height);
+    }
+
+    @Override
+    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
+        super.onLayout(changed, left, top, right, bottom);
+        int x = 0, y = 0;
+        x = getPaddingLeft() + ((right - left) - (getPaddingLeft() + getPaddingRight()) - mBitmap.getWidth()) / 2;
+        y = getPaddingTop() + ((bottom - top) - (getPaddingTop() + getPaddingBottom()) - mBitmap.getHeight()) / 2;
+        matrix.setTranslate(x, y);
     }
 
     @Override
@@ -180,7 +223,7 @@ public class CustomView extends View {
         mPaint.setShader(shader);
         canvas.drawCircle(200, 600, 100, mPaint);
 
-        colors = new int[] {Color.RED, Color.GREEN, Color.BLUE, Color.RED};
+        colors = new int[]{Color.RED, Color.GREEN, Color.BLUE, Color.RED};
         shader = new SweepGradient(500, 600, colors, null);
         mPaint.setShader(shader);
         canvas.drawCircle(500, 600, 100, mPaint);
@@ -206,7 +249,7 @@ public class CustomView extends View {
     }
 
     private void drawPathEffect(Canvas canvas) {
-        float[] intervals = {20, 10, 15 , 5};
+        float[] intervals = {20, 10, 15, 5};
         DashPathEffect effect = new DashPathEffect(intervals, 20);
         mPaint.setPathEffect(effect);
         mPaint.setStyle(Paint.Style.STROKE);
@@ -221,6 +264,7 @@ public class CustomView extends View {
     private void drawBitmapMesh(Canvas canvas) {
         canvas.drawBitmapMesh(mBitmap, 4, 1, meshVertices, 0, null, 0, mPaint);
     }
+
     private void drawBitmap(Canvas canvas) {
 //        matrix.setTranslate(100, 100);
 //        matrix.postRotate(45, 100, 100);
@@ -232,8 +276,10 @@ public class CustomView extends View {
         matrix.postTranslate(0, mBitmap.getHeight());
         canvas.drawBitmap(mBitmap, matrix, mPaint);
     }
+
     String text = "Hello! Android g";
     float hOffset = 0;
+
     private void drawText(Canvas canvas) {
         mPaint.setColor(Color.BLUE);
         mPaint.setTextSize(30);
@@ -287,12 +333,13 @@ public class CustomView extends View {
     }
 
     float x = 0, y = 0;
+
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         switch (event.getActionMasked()) {
-            case MotionEvent.ACTION_DOWN :
+            case MotionEvent.ACTION_DOWN:
                 return true;
-            case MotionEvent.ACTION_UP :
+            case MotionEvent.ACTION_UP:
                 x = event.getX();
                 y = event.getY();
                 invalidate();
