@@ -22,7 +22,10 @@ import android.graphics.Shader;
 import android.graphics.SweepGradient;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.util.AttributeSet;
+import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -36,6 +39,7 @@ public class CustomView extends View {
     }
 
     Paint mPaint;
+    GestureDetector mDetector;
 
     public CustomView(Context context, AttributeSet attrs) {
         super(context, attrs, R.attr.customViewStyle);
@@ -54,6 +58,27 @@ public class CustomView extends View {
         initPoint();
         initPath();
         initBitmap();
+
+        mDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener(){
+            @Override
+            public boolean onDown(MotionEvent e) {
+                return true;
+            }
+
+            @Override
+            public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+                matrix.postTranslate(-distanceX, -distanceY);
+                invalidate();
+                return true;
+            }
+
+            @Override
+            public boolean onDoubleTap(MotionEvent e) {
+                matrix.postScale(1.5f, 1.5f);
+                invalidate();
+                return true;
+            }
+        });
     }
 
     public void changeBitmap(Bitmap bitmap) {
@@ -336,15 +361,66 @@ public class CustomView extends View {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        switch (event.getActionMasked()) {
-            case MotionEvent.ACTION_DOWN:
-                return true;
-            case MotionEvent.ACTION_UP:
-                x = event.getX();
-                y = event.getY();
-                invalidate();
-                return true;
+//        switch (event.getActionMasked()) {
+//            case MotionEvent.ACTION_DOWN:
+//                return true;
+//            case MotionEvent.ACTION_UP:
+//                x = event.getX();
+//                y = event.getY();
+//                invalidate();
+//                return true;
+//        }
+
+        boolean consumed = mDetector.onTouchEvent(event);
+        return consumed || super.onTouchEvent(event);
+    }
+
+    @Override
+    protected Parcelable onSaveInstanceState() {
+        Parcelable superParcelable = super.onSaveInstanceState();
+        SavedState savedState = new SavedState(superParcelable);
+        savedState.bitmap = mBitmap;
+        return savedState;
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Parcelable state) {
+        if (state instanceof SavedState) {
+            super.onRestoreInstanceState(((SavedState) state).getSuperState());
+            changeBitmap(((SavedState) state).bitmap);
+        } else {
+            super.onRestoreInstanceState(state);
         }
-        return super.onTouchEvent(event);
+    }
+
+    static class SavedState extends View.BaseSavedState {
+        public SavedState(Parcelable superState) {
+            super(superState);
+        }
+
+        Bitmap bitmap;
+
+        public SavedState(Parcel parcel) {
+            super(parcel);
+            bitmap = parcel.readParcelable(Bitmap.class.getClassLoader());
+        }
+
+        @Override
+        public void writeToParcel(Parcel out, int flags) {
+            super.writeToParcel(out, flags);
+            out.writeParcelable(bitmap, flags);
+        }
+
+        public static Parcelable.Creator<SavedState> CREATOR = new Parcelable.Creator<SavedState>() {
+            @Override
+            public SavedState createFromParcel(Parcel parcel) {
+                return new SavedState(parcel);
+            }
+
+            @Override
+            public SavedState[] newArray(int size) {
+                return new SavedState[size];
+            }
+        };
     }
 }
