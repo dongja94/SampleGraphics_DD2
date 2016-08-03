@@ -1,6 +1,7 @@
 package com.begentgroup.samplegraphics;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -19,6 +20,8 @@ import android.graphics.RadialGradient;
 import android.graphics.RectF;
 import android.graphics.Shader;
 import android.graphics.SweepGradient;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -34,7 +37,16 @@ public class CustomView extends View {
 
     Paint mPaint;
     public CustomView(Context context, AttributeSet attrs) {
-        super(context, attrs);
+        super(context, attrs, R.attr.customViewStyle);
+
+        if (attrs != null) {
+            TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.CustomView,R.attr.customViewStyle, 0);
+            Drawable d = ta.getDrawable(R.styleable.CustomView_image);
+            if (d != null && d instanceof BitmapDrawable) {
+                mBitmap = ((BitmapDrawable)d).getBitmap();
+            }
+            ta.recycle();
+        }
 
         mPaint = new Paint();
 
@@ -50,7 +62,9 @@ public class CustomView extends View {
 
     private void initBitmap() {
 //        InputStream is = getResources().openRawResource(R.drawable.sample_0);
-        mBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.sample_0);
+        if (mBitmap == null) {
+            mBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.sample_0);
+        }
         matrix = new Matrix();
         matrix.reset();
         float dx = mBitmap.getWidth() / 4.0f;
@@ -117,8 +131,15 @@ public class CustomView extends View {
 //        drawPathDashPathEffect(canvas);
 //        drawColor(canvas);
 //        drawShader(canvas);
-        drawColorFilter(canvas);
+//        drawColorFilter(canvas);
+
+        drawSimpleBitmap(canvas);
+
         canvas.restore();
+    }
+
+    private void drawSimpleBitmap(Canvas canvas) {
+        canvas.drawBitmap(mBitmap, matrix, mPaint);
     }
 
     private void drawColorFilter(Canvas canvas) {
