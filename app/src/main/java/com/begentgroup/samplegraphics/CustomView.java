@@ -81,6 +81,22 @@ public class CustomView extends View {
         });
     }
 
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+//        switch (event.getActionMasked()) {
+//            case MotionEvent.ACTION_DOWN:
+//                return true;
+//            case MotionEvent.ACTION_UP:
+//                x = event.getX();
+//                y = event.getY();
+//                invalidate();
+//                return true;
+//        }
+
+        boolean consumed = mDetector.onTouchEvent(event);
+        return consumed || super.onTouchEvent(event);
+    }
+
     public void changeBitmap(Bitmap bitmap) {
         mBitmap = bitmap;
         requestLayout();
@@ -359,21 +375,6 @@ public class CustomView extends View {
 
     float x = 0, y = 0;
 
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-//        switch (event.getActionMasked()) {
-//            case MotionEvent.ACTION_DOWN:
-//                return true;
-//            case MotionEvent.ACTION_UP:
-//                x = event.getX();
-//                y = event.getY();
-//                invalidate();
-//                return true;
-//        }
-
-        boolean consumed = mDetector.onTouchEvent(event);
-        return consumed || super.onTouchEvent(event);
-    }
 
     @Override
     protected Parcelable onSaveInstanceState() {
