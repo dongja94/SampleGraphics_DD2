@@ -32,7 +32,7 @@ public class CustomScrollView extends View {
         mScroller.forceFinished(true);
         int x = getScrollX();
         int y = getScrollY();
-        mScroller.startScroll(x, y, 100, 0);
+        mScroller.startScroll(x, y, DELTA, 0);
         ViewCompat.postInvalidateOnAnimation(this);
     }
 

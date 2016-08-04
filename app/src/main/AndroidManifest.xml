@@ -20,7 +20,8 @@
         <activity android:name=".PathPaintActivity" />
         <activity android:name=".SurfaceActivity" />
         <activity android:name=".TextDrawActivity" />
-        <activity android:name=".ScrollActivity"></activity>
+        <activity android:name=".ScrollActivity" />
+        <activity android:name=".DragAndDropActivity"></activity>
     </application>
 
 </manifest>
