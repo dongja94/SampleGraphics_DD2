@@ -18,7 +18,7 @@ public class TextDrawable extends Drawable {
         mPaint = new Paint();
         mPaint.setTextSize(20);
         mPaint.setTextAlign(Paint.Align.CENTER);
-        mIntrisicWidth = (int)(mPaint.measureText(message, 0, message.length() - 1 ) + 0.5f);
+        mIntrisicWidth = (int)(mPaint.measureText(message, 0, message.length()) + 0.5f);
         mIntrisicHeight = (int)mPaint.getTextSize();
     }
 
